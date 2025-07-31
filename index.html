@@ -195,7 +195,6 @@
             display: block;
         }
 
-
         .leaderboard-section {
             margin-top: 20px;
             background: rgba(255,255,255,0.1);
@@ -280,8 +279,6 @@
             cursor: not-allowed;
             transform: none;
         }
-            display: block;
-        }
 
         .upgrade-grid {
             display: grid;
@@ -316,6 +313,12 @@
         .upgrade-item.owned {
             background: rgba(76, 175, 80, 0.2);
             border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .upgrade-item.equipped {
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
         .upgrade-name {
@@ -367,6 +370,15 @@
             border-left: 4px solid #ffd700;
         }
 
+        .current-effect {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
         @media (max-width: 600px) {
             .title {
                 font-size: 2rem;
@@ -385,6 +397,17 @@
                 width: 90px;
                 height: 90px;
                 font-size: 1rem;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
     </style>
@@ -432,7 +455,10 @@
             
             <div id="effects-tab" class="tab-content">
                 <h3 class="upgrades-title">✨ Click Effects Store ✨</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Enhance your clicks with special visual effects!</p>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Enhance your clicks with special visual effects! Only one effect can be active at a time.</p>
+                <div class="current-effect" id="currentEffect">
+                    <strong>Current Effect:</strong> <span id="currentEffectName">None</span>
+                </div>
                 <div class="upgrade-grid" id="clickEffectsStore">
                     <!-- Click effects will be populated by JavaScript -->
                 </div>
@@ -471,18 +497,32 @@
                 megaRinger: 0,
                 hyperRinger: 0
             },
-            clickEffects: {
+            ownedClickEffects: {
+                none: true,
                 explosion: false,
                 galaxy: false,
                 rainbow: false,
-                lightning: false
+                lightning: false,
+                fireworks: false,
+                snow: false,
+                hearts: false,
+                diamonds: false,
+                spiral: false,
+                meteor: false
             },
+            activeClickEffect: 'none',
             totalClicks: 0,
             startTime: Date.now(),
             playerName: ''
         };
 
         const clickEffectDefinitions = {
+            none: {
+                name: "🚫 No Effect",
+                cost: 0,
+                description: "Simple clicks with no special effects",
+                unlocked: true
+            },
             explosion: {
                 name: "💥 Explosion Effect",
                 cost: 100000,
@@ -502,6 +542,36 @@
                 name: "⚡ Lightning Effect",
                 cost: 1000000,
                 description: "Electric lightning bolts on every click!"
+            },
+            fireworks: {
+                name: "🎆 Fireworks Effect",
+                cost: 1500000,
+                description: "Spectacular firework explosions with every click!"
+            },
+            snow: {
+                name: "❄️ Snow Effect",
+                cost: 2000000,
+                description: "Beautiful snowflakes cascade from your clicks!"
+            },
+            hearts: {
+                name: "💖 Hearts Effect",
+                cost: 3000000,
+                description: "Lovely hearts float away from your clicks!"
+            },
+            diamonds: {
+                name: "💎 Diamond Effect",
+                cost: 5000000,
+                description: "Sparkling diamonds burst from your clicks!"
+            },
+            spiral: {
+                name: "🌀 Spiral Effect",
+                cost: 7500000,
+                description: "Mesmerizing spiral particles swirl around your clicks!"
+            },
+            meteor: {
+                name: "☄️ Meteor Effect",
+                cost: 10000000,
+                description: "Blazing meteors streak across the screen!"
             }
         };
 
@@ -606,9 +676,8 @@
             }
 
             const leaderboard = getLeaderboard();
-            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000); // in seconds
+            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000);
             
-            // Check if player already exists
             const existingIndex = leaderboard.findIndex(entry => entry.name === playerName);
             
             const newEntry = {
@@ -622,7 +691,6 @@
             };
 
             if (existingIndex !== -1) {
-                // Update existing entry if new score is higher
                 if (newEntry.rings > leaderboard[existingIndex].rings) {
                     leaderboard[existingIndex] = newEntry;
                     alert('Score updated!');
@@ -631,12 +699,10 @@
                     return;
                 }
             } else {
-                // Add new entry
                 leaderboard.push(newEntry);
                 alert('Score submitted!');
             }
 
-            // Sort by rings (descending) and keep top 10
             leaderboard.sort((a, b) => b.rings - a.rings);
             const topLeaderboard = leaderboard.slice(0, 10);
             
@@ -645,7 +711,6 @@
             saveGame();
             updateLeaderboard();
             
-            // Disable submit button temporarily
             submitBtn.disabled = true;
             setTimeout(() => {
                 submitBtn.disabled = false;
@@ -698,6 +763,7 @@
                 return `${secs}s`;
             }
         }
+
         function saveGame() {
             try {
                 const saveData = {
@@ -719,13 +785,29 @@
                     if (saveData) {
                         const parsed = JSON.parse(saveData);
                         
-                        // Load main game state
                         gameState.rings = parsed.rings || 0;
                         gameState.upgrades = parsed.upgrades || gameState.upgrades;
-                        gameState.clickEffects = parsed.clickEffects || gameState.clickEffects;
                         gameState.totalClicks = parsed.totalClicks || 0;
                         gameState.startTime = parsed.startTime || Date.now();
                         gameState.playerName = parsed.playerName || '';
+                        
+                        // Handle old click effects format
+                        if (parsed.clickEffects) {
+                            // Convert old format to new format
+                            Object.keys(parsed.clickEffects).forEach(key => {
+                                if (parsed.clickEffects[key] === true) {
+                                    gameState.ownedClickEffects[key] = true;
+                                }
+                            });
+                            // Set first owned effect as active (except 'none')
+                            const firstOwnedEffect = Object.keys(gameState.ownedClickEffects).find(key => 
+                                key !== 'none' && gameState.ownedClickEffects[key]
+                            );
+                            gameState.activeClickEffect = firstOwnedEffect || 'none';
+                        } else {
+                            gameState.ownedClickEffects = parsed.ownedClickEffects || gameState.ownedClickEffects;
+                            gameState.activeClickEffect = parsed.activeClickEffect || 'none';
+                        }
                         
                         // Load achievements
                         if (parsed.achievements) {
@@ -737,7 +819,6 @@
                             });
                         }
                         
-                        // Recalculate derived values
                         gameState.clickPower = calculateClickPower();
                         gameState.ringsPerSecond = calculateRingsPerSecond();
                         
@@ -777,6 +858,22 @@
             return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, gameState.upgrades[upgradeKey]));
         }
 
+        function setActiveClickEffect(effectKey) {
+            gameState.activeClickEffect = effectKey;
+            updateCurrentEffectDisplay();
+            updateClickEffectsStore(); // Update the store immediately to show (ACTIVE) status
+            saveGame();
+        }
+
+        function updateCurrentEffectDisplay() {
+            const currentEffectName = document.getElementById('currentEffectName');
+            if (currentEffectName) {
+                const effectDef = clickEffectDefinitions[gameState.activeClickEffect];
+                currentEffectName.textContent = effectDef ? effectDef.name : 'None';
+            }
+        }
+
+        // Click Effect Functions
         function createExplosionEffect(x, y) {
             for (let i = 0; i < 8; i++) {
                 const particle = document.createElement('div');
@@ -805,7 +902,7 @@
                 
                 const animate = () => {
                     posX += vx * 0.016;
-                    posY += vy * 0.016 + 20 * 0.016; // gravity
+                    posY += vy * 0.016 + 20 * 0.016;
                     opacity -= 0.02;
                     
                     particle.style.left = posX + 'px';
@@ -959,6 +1056,313 @@
             }
         }
 
+        function createFireworksEffect(x, y) {
+            for (let burst = 0; burst < 3; burst++) {
+                setTimeout(() => {
+                    const colors = ['#ff1744', '#ff9800', '#ffeb3b', '#4caf50', '#2196f3', '#9c27b0'];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    for (let i = 0; i < 15; i++) {
+                        const particle = document.createElement('div');
+                        particle.style.cssText = `
+                            position: fixed;
+                            width: 6px;
+                            height: 6px;
+                            background: ${color};
+                            border-radius: 50%;
+                            pointer-events: none;
+                            z-index: 1000;
+                            left: ${x}px;
+                            top: ${y}px;
+                            box-shadow: 0 0 10px ${color};
+                        `;
+                        
+                        const angle = (i / 15) * Math.PI * 2;
+                        const velocity = 30 + Math.random() * 50;
+                        const vx = Math.cos(angle) * velocity;
+                        const vy = Math.sin(angle) * velocity;
+                        
+                        document.body.appendChild(particle);
+                        
+                        let posX = x;
+                        let posY = y;
+                        let opacity = 1;
+                        let gravity = 0;
+                        
+                        const animate = () => {
+                            posX += vx * 0.016;
+                            posY += (vy + gravity) * 0.016;
+                            gravity += 1;
+                            opacity -= 0.015;
+                            
+                            particle.style.left = posX + 'px';
+                            particle.style.top = posY + 'px';
+                            particle.style.opacity = opacity;
+                            
+                            if (opacity > 0) {
+                                requestAnimationFrame(animate);
+                            } else {
+                                if (document.body.contains(particle)) {
+                                    document.body.removeChild(particle);
+                                }
+                            }
+                        };
+                        
+                        requestAnimationFrame(animate);
+                    }
+                }, burst * 200);
+            }
+        }
+
+        function createSnowEffect(x, y) {
+            for (let i = 0; i < 20; i++) {
+                const snowflake = document.createElement('div');
+                const size = 4 + Math.random() * 8;
+                snowflake.style.cssText = `
+                    position: fixed;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: white;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x + (Math.random() - 0.5) * 100}px;
+                    top: ${y - 50}px;
+                    opacity: 0.8;
+                    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+                `;
+                
+                document.body.appendChild(snowflake);
+                
+                let posY = y - 50;
+                let posX = x + (Math.random() - 0.5) * 100;
+                let opacity = 0.8;
+                let drift = (Math.random() - 0.5) * 2;
+                
+                const animate = () => {
+                    posY += 2 + Math.random() * 2;
+                    posX += drift;
+                    opacity -= 0.01;
+                    
+                    snowflake.style.top = posY + 'px';
+                    snowflake.style.left = posX + 'px';
+                    snowflake.style.opacity = opacity;
+                    
+                    if (opacity > 0 && posY < window.innerHeight + 50) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(snowflake)) {
+                            document.body.removeChild(snowflake);
+                        }
+                    }
+                };
+                
+                setTimeout(() => requestAnimationFrame(animate), i * 50);
+            }
+        }
+
+        function createHeartsEffect(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const heart = document.createElement('div');
+                const size = 12 + Math.random() * 8;
+                heart.innerHTML = '💖';
+                heart.style.cssText = `
+                    position: fixed;
+                    font-size: ${size}px;
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x}px;
+                    top: ${y}px;
+                `;
+                
+                const angle = (i / 10) * Math.PI * 2;
+                const velocity = 20 + Math.random() * 30;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity - 30;
+                
+                document.body.appendChild(heart);
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                let scale = 0.5;
+                
+                const animate = () => {
+                    posX += vx * 0.016;
+                    posY += vy * 0.016;
+                    opacity -= 0.015;
+                    scale += 0.01;
+                    
+                    heart.style.left = posX + 'px';
+                    heart.style.top = posY + 'px';
+                    heart.style.opacity = opacity;
+                    heart.style.transform = `scale(${scale})`;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(heart)) {
+                            document.body.removeChild(heart);
+                        }
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function createDiamondsEffect(x, y) {
+            for (let i = 0; i < 12; i++) {
+                const diamond = document.createElement('div');
+                const size = 8 + Math.random() * 6;
+                diamond.style.cssText = `
+                    position: fixed;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: linear-gradient(45deg, #e3f2fd, #bbdefb, #90caf9, #64b5f6);
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x}px;
+                    top: ${y}px;
+                    transform: rotate(45deg);
+                    box-shadow: 0 0 15px rgba(100, 181, 246, 0.8);
+                `;
+                
+                const angle = (i / 12) * Math.PI * 2;
+                const velocity = 40 + Math.random() * 40;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                document.body.appendChild(diamond);
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                let rotation = 45;
+                
+                const animate = () => {
+                    posX += vx * 0.016;
+                    posY += vy * 0.016;
+                    opacity -= 0.02;
+                    rotation += 5;
+                    
+                    diamond.style.left = posX + 'px';
+                    diamond.style.top = posY + 'px';
+                    diamond.style.opacity = opacity;
+                    diamond.style.transform = `rotate(${rotation}deg)`;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(diamond)) {
+                            document.body.removeChild(diamond);
+                        }
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function createSpiralEffect(x, y) {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                const hue = (i * 12) % 360;
+                particle.style.cssText = `
+                    position: fixed;
+                    width: 6px;
+                    height: 6px;
+                    background: hsl(${hue}, 100%, 60%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x}px;
+                    top: ${y}px;
+                    box-shadow: 0 0 8px hsl(${hue}, 100%, 60%);
+                `;
+                
+                document.body.appendChild(particle);
+                
+                let angle = 0;
+                let radius = 0;
+                let opacity = 1;
+                
+                const animate = () => {
+                    angle += 0.2;
+                    radius += 2;
+                    opacity -= 0.015;
+                    
+                    const posX = x + Math.cos(angle) * radius;
+                    const posY = y + Math.sin(angle) * radius;
+                    
+                    particle.style.left = posX + 'px';
+                    particle.style.top = posY + 'px';
+                    particle.style.opacity = opacity;
+                    
+                    if (opacity > 0 && radius < 100) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(particle)) {
+                            document.body.removeChild(particle);
+                        }
+                    }
+                };
+                
+                setTimeout(() => requestAnimationFrame(animate), i * 50);
+            }
+        }
+
+        function createMeteorEffect(x, y) {
+            for (let i = 0; i < 5; i++) {
+                const meteor = document.createElement('div');
+                const length = 30 + Math.random() * 20;
+                meteor.style.cssText = `
+                    position: fixed;
+                    width: 4px;
+                    height: ${length}px;
+                    background: linear-gradient(to bottom, #ffab00, #ff6f00, #e65100);
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x + (Math.random() - 0.5) * 200}px;
+                    top: ${y - 100}px;
+                    border-radius: 2px;
+                    box-shadow: 0 0 15px #ff6f00;
+                `;
+                
+                const startX = x + (Math.random() - 0.5) * 200;
+                const startY = y - 100;
+                const angle = Math.random() * Math.PI / 3 + Math.PI / 6; // 30-60 degrees
+                const velocity = 100 + Math.random() * 50;
+                
+                document.body.appendChild(meteor);
+                
+                let posX = startX;
+                let posY = startY;
+                let opacity = 1;
+                
+                const animate = () => {
+                    posX += Math.cos(angle) * velocity * 0.016;
+                    posY += Math.sin(angle) * velocity * 0.016;
+                    opacity -= 0.02;
+                    
+                    meteor.style.left = posX + 'px';
+                    meteor.style.top = posY + 'px';
+                    meteor.style.opacity = opacity;
+                    meteor.style.transform = `rotate(${angle + Math.PI/2}rad)`;
+                    
+                    if (opacity > 0 && posY < window.innerHeight + 100) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(meteor)) {
+                            document.body.removeChild(meteor);
+                        }
+                    }
+                };
+                
+                setTimeout(() => requestAnimationFrame(animate), i * 200);
+            }
+        }
+
         function createFloatingNumber(value, x, y) {
             const floatingNumber = document.createElement('div');
             floatingNumber.className = 'floating-number';
@@ -1002,18 +1406,42 @@
                 
                 createFloatingNumber(ringsGained, x - 20, y - 20);
                 
-                // Apply click effects
-                if (gameState.clickEffects.explosion) {
-                    createExplosionEffect(x, y);
-                }
-                if (gameState.clickEffects.galaxy) {
-                    createGalaxyEffect(x, y);
-                }
-                if (gameState.clickEffects.rainbow) {
-                    createRainbowEffect(x, y);
-                }
-                if (gameState.clickEffects.lightning) {
-                    createLightningEffect(x, y);
+                // Apply the currently active click effect
+                switch (gameState.activeClickEffect) {
+                    case 'explosion':
+                        createExplosionEffect(x, y);
+                        break;
+                    case 'galaxy':
+                        createGalaxyEffect(x, y);
+                        break;
+                    case 'rainbow':
+                        createRainbowEffect(x, y);
+                        break;
+                    case 'lightning':
+                        createLightningEffect(x, y);
+                        break;
+                    case 'fireworks':
+                        createFireworksEffect(x, y);
+                        break;
+                    case 'snow':
+                        createSnowEffect(x, y);
+                        break;
+                    case 'hearts':
+                        createHeartsEffect(x, y);
+                        break;
+                    case 'diamonds':
+                        createDiamondsEffect(x, y);
+                        break;
+                    case 'spiral':
+                        createSpiralEffect(x, y);
+                        break;
+                    case 'meteor':
+                        createMeteorEffect(x, y);
+                        break;
+                    case 'none':
+                    default:
+                        // No effect
+                        break;
                 }
             }
             
@@ -1021,7 +1449,7 @@
             updateDisplay();
             updateUpgrades();
             updateClickEffectsStore();
-            saveGame(); // Auto-save on every click
+            saveGame();
         }
 
         function buyUpgrade(upgradeKey) {
@@ -1043,13 +1471,15 @@
 
         function buyClickEffect(effectKey) {
             const effect = clickEffectDefinitions[effectKey];
-            if (gameState.rings >= effect.cost && !gameState.clickEffects[effectKey]) {
+            if (gameState.rings >= effect.cost && !gameState.ownedClickEffects[effectKey]) {
                 gameState.rings -= effect.cost;
-                gameState.clickEffects[effectKey] = true;
+                gameState.ownedClickEffects[effectKey] = true;
+                gameState.activeClickEffect = effectKey; // Auto-equip the new effect
                 
                 checkAchievements();
                 updateDisplay();
                 updateClickEffectsStore();
+                updateCurrentEffectDisplay();
                 saveGame();
             }
         }
@@ -1062,18 +1492,31 @@
 
             Object.keys(clickEffectDefinitions).forEach(key => {
                 const effect = clickEffectDefinitions[key];
-                const owned = gameState.clickEffects[key];
+                const owned = gameState.ownedClickEffects[key];
+                const isActive = gameState.activeClickEffect === key;
                 const canAfford = gameState.rings >= effect.cost && !owned;
 
                 const effectElement = document.createElement('div');
-                effectElement.className = `upgrade-item ${owned ? 'owned' : (canAfford ? '' : 'disabled')}`;
+                let className = 'upgrade-item';
+                if (isActive) {
+                    className += ' equipped';
+                } else if (owned) {
+                    className += ' owned';
+                } else if (!canAfford) {
+                    className += ' disabled';
+                }
+                effectElement.className = className;
                 
                 if (owned) {
                     effectElement.innerHTML = `
-                        <div class="upgrade-name">${effect.name} ✓</div>
-                        <div class="upgrade-cost" style="color: #4caf50;">OWNED</div>
+                        <div class="upgrade-name">${effect.name} ${isActive ? '(ACTIVE)' : ''}</div>
+                        <div class="upgrade-cost" style="color: #4caf50;">${isActive ? 'EQUIPPED' : 'OWNED - Click to Equip'}</div>
                         <div class="upgrade-effect">${effect.description}</div>
                     `;
+                    
+                    if (!isActive) {
+                        effectElement.addEventListener('click', () => setActiveClickEffect(key));
+                    }
                 } else {
                     effectElement.innerHTML = `
                         <div class="upgrade-name">${effect.name}</div>
@@ -1147,7 +1590,7 @@
                         shouldUnlock = true;
                     } else if (achievement.requirement === 'clicks_10000' && gameState.totalClicks >= 10000) {
                         shouldUnlock = true;
-                    } else if (achievement.requirement === 'effect' && Object.values(gameState.clickEffects).some(val => val)) {
+                    } else if (achievement.requirement === 'effect' && Object.values(gameState.ownedClickEffects).some((val, index) => val && Object.keys(gameState.ownedClickEffects)[index] !== 'none')) {
                         shouldUnlock = true;
                     } else if (achievement.requirement === 'time_1h' && playTime >= 3600000) {
                         shouldUnlock = true;
@@ -1167,7 +1610,6 @@
         }
 
         function showAchievementNotification(achievement) {
-            // Simple achievement notification
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -1257,9 +1699,8 @@
             }
 
             const leaderboard = getLeaderboard();
-            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000); // in seconds
+            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000);
             
-            // Check if player already exists
             const existingIndex = leaderboard.findIndex(entry => entry.name === playerName);
             
             const newEntry = {
@@ -1273,7 +1714,6 @@
             };
 
             if (existingIndex !== -1) {
-                // Update existing entry if new score is higher
                 if (newEntry.rings > leaderboard[existingIndex].rings) {
                     leaderboard[existingIndex] = newEntry;
                     alert('Score updated!');
@@ -1282,12 +1722,10 @@
                     return;
                 }
             } else {
-                // Add new entry
                 leaderboard.push(newEntry);
                 alert('Score submitted!');
             }
 
-            // Sort by rings (descending) and keep top 10
             leaderboard.sort((a, b) => b.rings - a.rings);
             const topLeaderboard = leaderboard.slice(0, 10);
             
@@ -1296,7 +1734,6 @@
             saveGame();
             updateLeaderboard();
             
-            // Disable submit button temporarily
             submitBtn.disabled = true;
             setTimeout(() => {
                 submitBtn.disabled = false;
@@ -1368,23 +1805,8 @@
             updateClickEffectsStore();
             updateAchievementsDisplay();
             updateLeaderboard();
+            updateCurrentEffectDisplay();
         });
-
-        // Add CSS animation for slideIn
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
