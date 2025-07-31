@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohammed Abdul Rahim Doorbell Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .stats-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .doorbell-section {
+            margin: 40px 0;
+        }
+
+        .doorbell {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doorbell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .doorbell:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .doorbell-button {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border: 3px solid #333;
+        }
+
+        .ring-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #ffd700;
+            border-radius: 50%;
+            animation: ring 0.6s ease-out;
+        }
+
+        @keyframes ring {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .click-text {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .upgrades-section {
+            margin-top: 40px;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .upgrades-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            background: rgba(255,215,0,0.3);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+
+        .leaderboard-section {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .leaderboard-title {
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border-left: 3px solid #ffd700;
+        }
+
+        .leaderboard-rank {
+            font-weight: bold;
+            color: #ffd700;
+            min-width: 30px;
+        }
+
+        .leaderboard-name {
+            flex-grow: 1;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .leaderboard-score {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .name-input-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .name-input {
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+
+        .name-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .submit-score-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-score-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+        }
+
+        .submit-score-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+            display: block;
+        }
+
+        .upgrade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .upgrade-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .upgrade-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-item.disabled:hover {
+            background: rgba(255,255,255,0.1);
+            transform: none;
+        }
+
+        .upgrade-item.owned {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-cost {
+            color: #ffd700;
+            font-size: 0.9rem;
+        }
+
+        .upgrade-effect {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .floating-number {
+            position: absolute;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        .achievements {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .achievement {
+            background: rgba(255,215,0,0.2);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+
+        @media (max-width: 600px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .stats-section {
+                gap: 20px;
+            }
+            
+            .doorbell {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .doorbell-button {
+                width: 90px;
+                height: 90px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">Mohammed Abdul Rahim</h1>
+        <h2 class="subtitle">Doorbell Game</h2>
+        
+        <div class="stats-section">
+            <div class="stat-box">
+                <div class="stat-number" id="ringCount">0</div>
+                <div class="stat-label">Total Rings</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="ringsPerSecond">0</div>
+                <div class="stat-label">Rings per Second</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="clickPower">1</div>
+                <div class="stat-label">Rings per Click</div>
+            </div>
+        </div>
+
+        <div class="doorbell-section">
+            <div class="doorbell" id="doorbell">
+                <div class="doorbell-button">RING!</div>
+            </div>
+            <div class="click-text">Click the doorbell to ring it!</div>
+        </div>
+
+        <div class="upgrades-section">
+            <div class="tabs">
+                <div class="tab active" data-tab="upgrades">🔧 Upgrades</div>
+                <div class="tab" data-tab="effects">✨ Click Effects</div>
+                <div class="tab" data-tab="leaderboard">🏆 Leaderboard</div>
+            </div>
+            
+            <div id="upgrades-tab" class="tab-content active">
+                <h3 class="upgrades-title">🔔 Doorbell Upgrades 🔔</h3>
+                <div class="upgrade-grid" id="upgradeGrid">
+                    <!-- Upgrades will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div id="effects-tab" class="tab-content">
+                <h3 class="upgrades-title">✨ Click Effects Store ✨</h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Enhance your clicks with special visual effects!</p>
+                <div class="upgrade-grid" id="clickEffectsStore">
+                    <!-- Click effects will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div id="leaderboard-tab" class="tab-content">
+                <h3 class="upgrades-title">🏆 Global Leaderboard 🏆</h3>
+                <div class="name-input-section">
+                    <input type="text" id="playerNameInput" class="name-input" placeholder="Enter your name" maxlength="20">
+                    <button id="submitScoreBtn" class="submit-score-btn">Submit Score</button>
+                </div>
+                <div class="leaderboard-section" id="leaderboardContainer">
+                    <div class="leaderboard-title">Top Ring Masters</div>
+                    <div id="leaderboardList">
+                        <!-- Leaderboard entries will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="achievements" id="achievements">
+                <h4 style="color: #ffd700; margin-bottom: 10px;">🏆 Achievements</h4>
+                <!-- Achievements will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            rings: 0,
+            clickPower: 1,
+            ringsPerSecond: 0,
+            upgrades: {
+                clickPower: 0,
+                autoRinger1: 0,
+                autoRinger2: 0,
+                megaRinger: 0,
+                hyperRinger: 0
+            },
+            clickEffects: {
+                explosion: false,
+                galaxy: false,
+                rainbow: false,
+                lightning: false
+            },
+            totalClicks: 0,
+            startTime: Date.now(),
+            playerName: ''
+        };
+
+        const clickEffectDefinitions = {
+            explosion: {
+                name: "💥 Explosion Effect",
+                cost: 100000,
+                description: "Explosive clicks with particle effects!"
+            },
+            galaxy: {
+                name: "🌌 Galaxy Effect",
+                cost: 250000,
+                description: "Stars appear around your cursor when clicking!"
+            },
+            rainbow: {
+                name: "🌈 Rainbow Effect",
+                cost: 500000,
+                description: "Colorful rainbow trails follow your clicks!"
+            },
+            lightning: {
+                name: "⚡ Lightning Effect",
+                cost: 1000000,
+                description: "Electric lightning bolts on every click!"
+            }
+        };
+
+        const upgradeDefinitions = {
+            clickPower: {
+                name: "Stronger Finger",
+                baseCost: 10,
+                effect: "Double rings per click",
+                costMultiplier: 2.5
+            },
+            autoRinger1: {
+                name: "Wind Chime",
+                baseCost: 50,
+                effect: "+1 ring per second",
+                costMultiplier: 3
+            },
+            autoRinger2: {
+                name: "Mechanical Ringer",
+                baseCost: 200,
+                effect: "+5 rings per second",
+                costMultiplier: 3.5
+            },
+            megaRinger: {
+                name: "Electric Doorbell",
+                baseCost: 1000,
+                effect: "+25 rings per second",
+                costMultiplier: 4
+            },
+            hyperRinger: {
+                name: "Quantum Doorbell",
+                baseCost: 10000,
+                effect: "+100 rings per second",
+                costMultiplier: 5
+            }
+        };
+
+        const achievements = [
+            { id: 'first_ring', name: 'First Ring', desc: 'Ring the doorbell once', requirement: 1, unlocked: false },
+            { id: 'ten_rings', name: 'Getting Started', desc: 'Ring 10 times', requirement: 10, unlocked: false },
+            { id: 'fifty_rings', name: 'Ring Master', desc: 'Ring 50 times', requirement: 50, unlocked: false },
+            { id: 'century', name: 'Century Ringer', desc: 'Ring 100 times', requirement: 100, unlocked: false },
+            { id: 'five_hundred', name: 'Dedicated Ringer', desc: 'Ring 500 times', requirement: 500, unlocked: false },
+            { id: 'millennium', name: 'Millennium Ringer', desc: 'Ring 1,000 times', requirement: 1000, unlocked: false },
+            { id: 'five_k', name: 'Ring Champion', desc: 'Ring 5,000 times', requirement: 5000, unlocked: false },
+            { id: 'ten_k', name: 'Ring Legend', desc: 'Ring 10,000 times', requirement: 10000, unlocked: false },
+            { id: 'fifty_k', name: 'Ring Deity', desc: 'Ring 50,000 times', requirement: 50000, unlocked: false },
+            { id: 'hundred_k', name: 'Ring Overlord', desc: 'Ring 100,000 times', requirement: 100000, unlocked: false },
+            { id: 'million', name: 'Million Ringer', desc: 'Ring 1,000,000 times', requirement: 1000000, unlocked: false },
+            { id: 'ten_million', name: 'Ring Emperor', desc: 'Ring 10,000,000 times', requirement: 10000000, unlocked: false },
+            { id: 'first_upgrade', name: 'First Upgrade', desc: 'Buy your first upgrade', requirement: 'upgrade', unlocked: false },
+            { id: 'ten_upgrades', name: 'Upgrade Collector', desc: 'Buy 10 total upgrades', requirement: 'upgrades_10', unlocked: false },
+            { id: 'fifty_upgrades', name: 'Upgrade Master', desc: 'Buy 50 total upgrades', requirement: 'upgrades_50', unlocked: false },
+            { id: 'auto_pilot', name: 'Auto Pilot', desc: 'Reach 10 rings per second', requirement: 'rps_10', unlocked: false },
+            { id: 'speed_demon', name: 'Speed Demon', desc: 'Reach 100 rings per second', requirement: 'rps_100', unlocked: false },
+            { id: 'ring_storm', name: 'Ring Storm', desc: 'Reach 1,000 rings per second', requirement: 'rps_1000', unlocked: false },
+            { id: 'click_master', name: 'Click Master', desc: 'Click 100 times', requirement: 'clicks_100', unlocked: false },
+            { id: 'click_legend', name: 'Click Legend', desc: 'Click 1,000 times', requirement: 'clicks_1000', unlocked: false },
+            { id: 'click_god', name: 'Click God', desc: 'Click 10,000 times', requirement: 'clicks_10000', unlocked: false },
+            { id: 'first_effect', name: 'Special Effects', desc: 'Buy your first click effect', requirement: 'effect', unlocked: false },
+            { id: 'time_waster', name: 'Time Waster', desc: 'Play for 1 hour', requirement: 'time_1h', unlocked: false },
+            { id: 'dedicated_player', name: 'Dedicated Player', desc: 'Play for 24 hours', requirement: 'time_24h', unlocked: false }
+        ];
+
+        // Leaderboard functions
+        function getLeaderboard() {
+            try {
+                if (typeof(Storage) !== "undefined") {
+                    const leaderboard = window.localStorage.getItem('doorbellLeaderboard');
+                    return leaderboard ? JSON.parse(leaderboard) : [];
+                }
+            } catch (error) {
+                console.warn('Could not load leaderboard:', error);
+            }
+            return [];
+        }
+
+        function saveLeaderboard(leaderboard) {
+            try {
+                if (typeof(Storage) !== "undefined") {
+                    window.localStorage.setItem('doorbellLeaderboard', JSON.stringify(leaderboard));
+                }
+            } catch (error) {
+                console.warn('Could not save leaderboard:', error);
+            }
+        }
+
+        function submitScore() {
+            const nameInput = document.getElementById('playerNameInput');
+            const submitBtn = document.getElementById('submitScoreBtn');
+            
+            if (!nameInput || !submitBtn) return;
+            
+            const playerName = nameInput.value.trim();
+            if (!playerName) {
+                alert('Please enter a name!');
+                return;
+            }
+
+            if (gameState.rings < 100) {
+                alert('You need at least 100 rings to submit a score!');
+                return;
+            }
+
+            const leaderboard = getLeaderboard();
+            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000); // in seconds
+            
+            // Check if player already exists
+            const existingIndex = leaderboard.findIndex(entry => entry.name === playerName);
+            
+            const newEntry = {
+                name: playerName,
+                rings: Math.floor(gameState.rings),
+                clickPower: gameState.clickPower,
+                ringsPerSecond: Math.floor(gameState.ringsPerSecond * 10) / 10,
+                totalClicks: gameState.totalClicks,
+                playTime: playTime,
+                timestamp: Date.now()
+            };
+
+            if (existingIndex !== -1) {
+                // Update existing entry if new score is higher
+                if (newEntry.rings > leaderboard[existingIndex].rings) {
+                    leaderboard[existingIndex] = newEntry;
+                    alert('Score updated!');
+                } else {
+                    alert('Your previous score was higher!');
+                    return;
+                }
+            } else {
+                // Add new entry
+                leaderboard.push(newEntry);
+                alert('Score submitted!');
+            }
+
+            // Sort by rings (descending) and keep top 10
+            leaderboard.sort((a, b) => b.rings - a.rings);
+            const topLeaderboard = leaderboard.slice(0, 10);
+            
+            saveLeaderboard(topLeaderboard);
+            gameState.playerName = playerName;
+            saveGame();
+            updateLeaderboard();
+            
+            // Disable submit button temporarily
+            submitBtn.disabled = true;
+            setTimeout(() => {
+                submitBtn.disabled = false;
+            }, 5000);
+        }
+
+        function updateLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            if (!leaderboardList) return;
+            
+            const leaderboard = getLeaderboard();
+            
+            if (leaderboard.length === 0) {
+                leaderboardList.innerHTML = '<p style="text-align: center; opacity: 0.7;">No scores yet! Be the first to submit a score!</p>';
+                return;
+            }
+
+            const leaderboardHTML = leaderboard.map((entry, index) => {
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                const timeStr = entry.playTime ? formatTime(entry.playTime) : 'Unknown';
+                
+                return `
+                    <div class="leaderboard-entry" ${entry.name === gameState.playerName ? 'style="border-left-color: #4caf50; background: rgba(76, 175, 80, 0.1);"' : ''}>
+                        <div class="leaderboard-rank">${medal}</div>
+                        <div class="leaderboard-name">${entry.name}</div>
+                        <div class="leaderboard-score">
+                            <div>${entry.rings.toLocaleString()} rings</div>
+                            <div style="font-size: 0.8rem; opacity: 0.8;">
+                                ${entry.ringsPerSecond}/sec • ${entry.totalClicks} clicks • ${timeStr}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            leaderboardList.innerHTML = leaderboardHTML;
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+        function saveGame() {
+            try {
+                const saveData = {
+                    ...gameState,
+                    achievements: achievements.map(a => ({ id: a.id, unlocked: a.unlocked }))
+                };
+                if (typeof(Storage) !== "undefined") {
+                    window.localStorage.setItem('doorbellGameSave', JSON.stringify(saveData));
+                }
+            } catch (error) {
+                console.warn('Could not save game:', error);
+            }
+        }
+
+        function loadGame() {
+            try {
+                if (typeof(Storage) !== "undefined") {
+                    const saveData = window.localStorage.getItem('doorbellGameSave');
+                    if (saveData) {
+                        const parsed = JSON.parse(saveData);
+                        
+                        // Load main game state
+                        gameState.rings = parsed.rings || 0;
+                        gameState.upgrades = parsed.upgrades || gameState.upgrades;
+                        gameState.clickEffects = parsed.clickEffects || gameState.clickEffects;
+                        gameState.totalClicks = parsed.totalClicks || 0;
+                        gameState.startTime = parsed.startTime || Date.now();
+                        gameState.playerName = parsed.playerName || '';
+                        
+                        // Load achievements
+                        if (parsed.achievements) {
+                            parsed.achievements.forEach(savedAchievement => {
+                                const achievement = achievements.find(a => a.id === savedAchievement.id);
+                                if (achievement) {
+                                    achievement.unlocked = savedAchievement.unlocked;
+                                }
+                            });
+                        }
+                        
+                        // Recalculate derived values
+                        gameState.clickPower = calculateClickPower();
+                        gameState.ringsPerSecond = calculateRingsPerSecond();
+                        
+                        console.log('Game loaded successfully!');
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading game:', error);
+            }
+            return false;
+        }
+
+        function updateDisplay() {
+            const ringCountEl = document.getElementById('ringCount');
+            const rpsEl = document.getElementById('ringsPerSecond');
+            const clickPowerEl = document.getElementById('clickPower');
+            
+            if (ringCountEl) ringCountEl.textContent = Math.floor(gameState.rings).toLocaleString();
+            if (rpsEl) rpsEl.textContent = gameState.ringsPerSecond.toFixed(1);
+            if (clickPowerEl) clickPowerEl.textContent = gameState.clickPower.toLocaleString();
+        }
+
+        function calculateClickPower() {
+            return Math.pow(2, gameState.upgrades.clickPower);
+        }
+
+        function calculateRingsPerSecond() {
+            return gameState.upgrades.autoRinger1 * 1 + 
+                   gameState.upgrades.autoRinger2 * 5 + 
+                   gameState.upgrades.megaRinger * 25 + 
+                   gameState.upgrades.hyperRinger * 100;
+        }
+
+        function getUpgradeCost(upgradeKey) {
+            const upgrade = upgradeDefinitions[upgradeKey];
+            return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, gameState.upgrades[upgradeKey]));
+        }
+
+        function createExplosionEffect(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: fixed;
+                    width: 8px;
+                    height: 8px;
+                    background: radial-gradient(circle, #ff6b35, #f7931e);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x}px;
+                    top: ${y}px;
+                `;
+                
+                const angle = (i / 8) * Math.PI * 2;
+                const velocity = 50 + Math.random() * 30;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                document.body.appendChild(particle);
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                
+                const animate = () => {
+                    posX += vx * 0.016;
+                    posY += vy * 0.016 + 20 * 0.016; // gravity
+                    opacity -= 0.02;
+                    
+                    particle.style.left = posX + 'px';
+                    particle.style.top = posY + 'px';
+                    particle.style.opacity = opacity;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(particle)) {
+                            document.body.removeChild(particle);
+                        }
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function createGalaxyEffect(x, y) {
+            for (let i = 0; i < 12; i++) {
+                const star = document.createElement('div');
+                star.style.cssText = `
+                    position: fixed;
+                    width: 4px;
+                    height: 4px;
+                    background: white;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    box-shadow: 0 0 6px #fff, 0 0 12px #fff, 0 0 18px #fff;
+                `;
+                
+                const angle = (i / 12) * Math.PI * 2;
+                const distance = 30 + Math.random() * 40;
+                const starX = x + Math.cos(angle) * distance;
+                const starY = y + Math.sin(angle) * distance;
+                
+                star.style.left = starX + 'px';
+                star.style.top = starY + 'px';
+                
+                document.body.appendChild(star);
+                
+                let opacity = 1;
+                let scale = 0.5;
+                
+                const animate = () => {
+                    opacity -= 0.015;
+                    scale += 0.02;
+                    
+                    star.style.opacity = opacity;
+                    star.style.transform = `scale(${scale})`;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(star)) {
+                            document.body.removeChild(star);
+                        }
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function createRainbowEffect(x, y) {
+            const colors = ['#ff0000', '#ff8800', '#ffff00', '#88ff00', '#00ffff', '#0088ff', '#8800ff'];
+            
+            for (let i = 0; i < 7; i++) {
+                const trail = document.createElement('div');
+                trail.style.cssText = `
+                    position: fixed;
+                    width: 12px;
+                    height: 12px;
+                    background: ${colors[i]};
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x - 6}px;
+                    top: ${y - 6}px;
+                    filter: blur(1px);
+                `;
+                
+                document.body.appendChild(trail);
+                
+                let opacity = 1;
+                let offsetX = (Math.random() - 0.5) * 60;
+                let offsetY = (Math.random() - 0.5) * 60;
+                
+                const animate = () => {
+                    opacity -= 0.02;
+                    offsetX *= 1.05;
+                    offsetY *= 1.05;
+                    
+                    trail.style.opacity = opacity;
+                    trail.style.left = (x + offsetX) + 'px';
+                    trail.style.top = (y + offsetY) + 'px';
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(trail)) {
+                            document.body.removeChild(trail);
+                        }
+                    }
+                };
+                
+                setTimeout(() => requestAnimationFrame(animate), i * 50);
+            }
+        }
+
+        function createLightningEffect(x, y) {
+            for (let i = 0; i < 3; i++) {
+                const lightning = document.createElement('div');
+                const angle = (Math.random() - 0.5) * Math.PI;
+                const length = 40 + Math.random() * 30;
+                
+                lightning.style.cssText = `
+                    position: fixed;
+                    width: 2px;
+                    height: ${length}px;
+                    background: linear-gradient(to bottom, #ffffff, #4dd0e1, #0277bd);
+                    pointer-events: none;
+                    z-index: 1000;
+                    left: ${x}px;
+                    top: ${y}px;
+                    transform-origin: top center;
+                    transform: rotate(${angle}rad);
+                    box-shadow: 0 0 8px #4dd0e1, 0 0 16px #4dd0e1;
+                `;
+                
+                document.body.appendChild(lightning);
+                
+                let opacity = 1;
+                
+                const animate = () => {
+                    opacity -= 0.05;
+                    lightning.style.opacity = opacity;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (document.body.contains(lightning)) {
+                            document.body.removeChild(lightning);
+                        }
+                    }
+                };
+                
+                setTimeout(() => requestAnimationFrame(animate), i * 100);
+            }
+        }
+
+        function createFloatingNumber(value, x, y) {
+            const floatingNumber = document.createElement('div');
+            floatingNumber.className = 'floating-number';
+            floatingNumber.textContent = `+${value}`;
+            floatingNumber.style.left = x + 'px';
+            floatingNumber.style.top = y + 'px';
+            document.body.appendChild(floatingNumber);
+
+            setTimeout(() => {
+                if (document.body.contains(floatingNumber)) {
+                    document.body.removeChild(floatingNumber);
+                }
+            }, 1000);
+        }
+
+        function createRingAnimation() {
+            const doorbell = document.getElementById('doorbell');
+            if (!doorbell) return;
+            
+            const ringElement = document.createElement('div');
+            ringElement.className = 'ring-animation';
+            doorbell.appendChild(ringElement);
+
+            setTimeout(() => {
+                if (doorbell.contains(ringElement)) {
+                    doorbell.removeChild(ringElement);
+                }
+            }, 600);
+        }
+
+        function ringDoorbell(event) {
+            const ringsGained = gameState.clickPower;
+            gameState.rings += ringsGained;
+            gameState.totalClicks++;
+            
+            createRingAnimation();
+            
+            if (event) {
+                const x = event.clientX;
+                const y = event.clientY;
+                
+                createFloatingNumber(ringsGained, x - 20, y - 20);
+                
+                // Apply click effects
+                if (gameState.clickEffects.explosion) {
+                    createExplosionEffect(x, y);
+                }
+                if (gameState.clickEffects.galaxy) {
+                    createGalaxyEffect(x, y);
+                }
+                if (gameState.clickEffects.rainbow) {
+                    createRainbowEffect(x, y);
+                }
+                if (gameState.clickEffects.lightning) {
+                    createLightningEffect(x, y);
+                }
+            }
+            
+            checkAchievements();
+            updateDisplay();
+            updateUpgrades();
+            updateClickEffectsStore();
+            saveGame(); // Auto-save on every click
+        }
+
+        function buyUpgrade(upgradeKey) {
+            const cost = getUpgradeCost(upgradeKey);
+            if (gameState.rings >= cost) {
+                gameState.rings -= cost;
+                gameState.upgrades[upgradeKey]++;
+                
+                gameState.clickPower = calculateClickPower();
+                gameState.ringsPerSecond = calculateRingsPerSecond();
+                
+                checkAchievements();
+                updateDisplay();
+                updateUpgrades();
+                updateClickEffectsStore();
+                saveGame();
+            }
+        }
+
+        function buyClickEffect(effectKey) {
+            const effect = clickEffectDefinitions[effectKey];
+            if (gameState.rings >= effect.cost && !gameState.clickEffects[effectKey]) {
+                gameState.rings -= effect.cost;
+                gameState.clickEffects[effectKey] = true;
+                
+                checkAchievements();
+                updateDisplay();
+                updateClickEffectsStore();
+                saveGame();
+            }
+        }
+
+        function updateClickEffectsStore() {
+            const effectsContainer = document.getElementById('clickEffectsStore');
+            if (!effectsContainer) return;
+            
+            effectsContainer.innerHTML = '';
+
+            Object.keys(clickEffectDefinitions).forEach(key => {
+                const effect = clickEffectDefinitions[key];
+                const owned = gameState.clickEffects[key];
+                const canAfford = gameState.rings >= effect.cost && !owned;
+
+                const effectElement = document.createElement('div');
+                effectElement.className = `upgrade-item ${owned ? 'owned' : (canAfford ? '' : 'disabled')}`;
+                
+                if (owned) {
+                    effectElement.innerHTML = `
+                        <div class="upgrade-name">${effect.name} ✓</div>
+                        <div class="upgrade-cost" style="color: #4caf50;">OWNED</div>
+                        <div class="upgrade-effect">${effect.description}</div>
+                    `;
+                } else {
+                    effectElement.innerHTML = `
+                        <div class="upgrade-name">${effect.name}</div>
+                        <div class="upgrade-cost">Cost: ${effect.cost.toLocaleString()} rings</div>
+                        <div class="upgrade-effect">${effect.description}</div>
+                    `;
+
+                    if (canAfford) {
+                        effectElement.addEventListener('click', () => buyClickEffect(key));
+                    }
+                }
+
+                effectsContainer.appendChild(effectElement);
+            });
+        }
+
+        function updateUpgrades() {
+            const upgradeGrid = document.getElementById('upgradeGrid');
+            if (!upgradeGrid) return;
+            
+            upgradeGrid.innerHTML = '';
+
+            Object.keys(upgradeDefinitions).forEach(key => {
+                const upgrade = upgradeDefinitions[key];
+                const cost = getUpgradeCost(key);
+                const owned = gameState.upgrades[key];
+                const canAfford = gameState.rings >= cost;
+
+                const upgradeElement = document.createElement('div');
+                upgradeElement.className = `upgrade-item ${canAfford ? '' : 'disabled'}`;
+                upgradeElement.innerHTML = `
+                    <div class="upgrade-name">${upgrade.name}</div>
+                    <div class="upgrade-cost">Cost: ${cost.toLocaleString()} rings</div>
+                    <div class="upgrade-effect">${upgrade.effect}</div>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">Owned: ${owned}</div>
+                `;
+
+                if (canAfford) {
+                    upgradeElement.addEventListener('click', () => buyUpgrade(key));
+                }
+
+                upgradeGrid.appendChild(upgradeElement);
+            });
+        }
+
+        function checkAchievements() {
+            const totalUpgrades = Object.values(gameState.upgrades).reduce((sum, val) => sum + val, 0);
+            const playTime = Date.now() - gameState.startTime;
+            
+            achievements.forEach(achievement => {
+                if (!achievement.unlocked) {
+                    let shouldUnlock = false;
+                    
+                    if (typeof achievement.requirement === 'number' && gameState.rings >= achievement.requirement) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'upgrade' && totalUpgrades > 0) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'upgrades_10' && totalUpgrades >= 10) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'upgrades_50' && totalUpgrades >= 50) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'rps_10' && gameState.ringsPerSecond >= 10) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'rps_100' && gameState.ringsPerSecond >= 100) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'rps_1000' && gameState.ringsPerSecond >= 1000) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'clicks_100' && gameState.totalClicks >= 100) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'clicks_1000' && gameState.totalClicks >= 1000) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'clicks_10000' && gameState.totalClicks >= 10000) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'effect' && Object.values(gameState.clickEffects).some(val => val)) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'time_1h' && playTime >= 3600000) {
+                        shouldUnlock = true;
+                    } else if (achievement.requirement === 'time_24h' && playTime >= 86400000) {
+                        shouldUnlock = true;
+                    }
+                    
+                    if (shouldUnlock) {
+                        achievement.unlocked = true;
+                        showAchievementNotification(achievement);
+                        saveGame();
+                    }
+                }
+            });
+            
+            updateAchievementsDisplay();
+        }
+
+        function showAchievementNotification(achievement) {
+            // Simple achievement notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #ffd700, #ffed4e);
+                color: #333;
+                padding: 15px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 1000;
+                animation: slideIn 0.5s ease-out;
+            `;
+            notification.innerHTML = `🏆 Achievement Unlocked!<br><strong>${achievement.name}</strong><br>${achievement.desc}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        function updateAchievementsDisplay() {
+            const achievementsContainer = document.getElementById('achievements');
+            if (!achievementsContainer) return;
+            
+            const unlockedAchievements = achievements.filter(a => a.unlocked);
+            
+            if (unlockedAchievements.length > 0) {
+                const achievementElements = unlockedAchievements.map(achievement => 
+                    `<div class="achievement">🏆 <strong>${achievement.name}</strong> - ${achievement.desc}</div>`
+                ).join('');
+                
+                achievementsContainer.innerHTML = `
+                    <h4 style="color: #ffd700; margin-bottom: 10px;">🏆 Achievements (${unlockedAchievements.length}/${achievements.length})</h4>
+                    ${achievementElements}
+                `;
+            } else {
+                achievementsContainer.innerHTML = `
+                    <h4 style="color: #ffd700; margin-bottom: 10px;">🏆 Achievements (0/${achievements.length})</h4>
+                    <p style="opacity: 0.7;">Start ringing to unlock achievements!</p>
+                `;
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const targetTab = document.getElementById(tabName + '-tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            
+            // Add active class to clicked tab
+            const clickedTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+        }
+
+        // Make submitScore globally available
+        window.submitScore = function() {
+            const nameInput = document.getElementById('playerNameInput');
+            const submitBtn = document.getElementById('submitScoreBtn');
+            
+            if (!nameInput || !submitBtn) return;
+            
+            const playerName = nameInput.value.trim();
+            if (!playerName) {
+                alert('Please enter a name!');
+                return;
+            }
+
+            if (gameState.rings < 100) {
+                alert('You need at least 100 rings to submit a score!');
+                return;
+            }
+
+            const leaderboard = getLeaderboard();
+            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000); // in seconds
+            
+            // Check if player already exists
+            const existingIndex = leaderboard.findIndex(entry => entry.name === playerName);
+            
+            const newEntry = {
+                name: playerName,
+                rings: Math.floor(gameState.rings),
+                clickPower: gameState.clickPower,
+                ringsPerSecond: Math.floor(gameState.ringsPerSecond * 10) / 10,
+                totalClicks: gameState.totalClicks,
+                playTime: playTime,
+                timestamp: Date.now()
+            };
+
+            if (existingIndex !== -1) {
+                // Update existing entry if new score is higher
+                if (newEntry.rings > leaderboard[existingIndex].rings) {
+                    leaderboard[existingIndex] = newEntry;
+                    alert('Score updated!');
+                } else {
+                    alert('Your previous score was higher!');
+                    return;
+                }
+            } else {
+                // Add new entry
+                leaderboard.push(newEntry);
+                alert('Score submitted!');
+            }
+
+            // Sort by rings (descending) and keep top 10
+            leaderboard.sort((a, b) => b.rings - a.rings);
+            const topLeaderboard = leaderboard.slice(0, 10);
+            
+            saveLeaderboard(topLeaderboard);
+            gameState.playerName = playerName;
+            saveGame();
+            updateLeaderboard();
+            
+            // Disable submit button temporarily
+            submitBtn.disabled = true;
+            setTimeout(() => {
+                submitBtn.disabled = false;
+            }, 5000);
+        };
+
+        // Game loop for auto-ringing and auto-save
+        setInterval(() => {
+            if (gameState.ringsPerSecond > 0) {
+                gameState.rings += gameState.ringsPerSecond / 10; // 10 times per second
+                updateDisplay();
+            }
+        }, 100);
+
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            saveGame();
+        }, 30000);
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const doorbell = document.getElementById('doorbell');
+            if (doorbell) {
+                doorbell.addEventListener('click', ringDoorbell);
+            }
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tabName = tab.getAttribute('data-tab');
+                    if (tabName) {
+                        switchTab(tabName);
+                    }
+                });
+            });
+
+            // Submit score button
+            const submitBtn = document.getElementById('submitScoreBtn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', submitScore);
+            }
+
+            // Player name input
+            const playerNameInput = document.getElementById('playerNameInput');
+            if (playerNameInput) {
+                playerNameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        submitScore();
+                    }
+                });
+            }
+
+            // Initial setup
+            if (!loadGame()) {
+                // New game setup
+                gameState.startTime = Date.now();
+            }
+            
+            // Set player name in input if exists
+            if (gameState.playerName && playerNameInput) {
+                playerNameInput.value = gameState.playerName;
+            }
+            
+            gameState.clickPower = calculateClickPower();
+            gameState.ringsPerSecond = calculateRingsPerSecond();
+            updateDisplay();
+            updateUpgrades();
+            updateClickEffectsStore();
+            updateAchievementsDisplay();
+            updateLeaderboard();
+        });
+
+        // Add CSS animation for slideIn
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
